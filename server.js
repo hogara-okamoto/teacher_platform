@@ -2,8 +2,14 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import fetch from 'node-fetch';// For actual API calls
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 dotenv.config(); // Load environment variables from.env file
+
+// Setup __dirname in ES module
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -14,6 +20,11 @@ app.use(express.json()); // JSON形式のリクエストボディをパースす
 
 // 静的ファイル（index.htmlなど）を配信
 app.use(express.static('public'));
+
+// Explicitly serve index.html at root (for Vercel)
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 // 教材生成のエンドポイント
 app.post('/generate-material', async (req, res) => {
