@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI教材アシスタント</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; background-color: #f4f4f4; color: #333; }
+       .container { max-width: 800px; margin: auto; background-color: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { color: #0056b3; text-align: center; margin-bottom: 30px; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; }
+        input[type="text"], select { width: calc(100% - 22px); padding: 10px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 4px; font-size: 16px; }
+        button { background-color: #007bff; color: white; padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 18px; width: 100%; transition: background-color 0.3s ease; }
+        button:hover { background-color: #0056b3; }
+        #loading { text-align: center; margin-top: 20px; font-style: italic; color: #666; display: none; }
+        #result { margin-top: 30px; padding: 20px; border: 1px dashed #ccc; border-radius: 5px; background-color: #f9f9f9; min-height: 150px; }
+        #result h3 { color: #007bff; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AI教材アシスタント</h1>
+        <form id="materialForm">
+            <label for="topic">トピック:</label>
+            <input type="text" id="topic" placeholder="例: Daily Routines, Space Exploration" required>
+
+            <label for="level">学生レベル:</label>
+            <select id="level" required>
+                <option value="">選択してください</option>
+                <option value="Beginner">初心者 (Beginner)</option>
+                <option value="Elementary">初級 (Elementary)</option>
+                <option value="Intermediate">中級 (Intermediate)</option>
+                <option value="Advanced">上級 (Advanced)</option>
+            </select>
+
+            <button type="submit">教材を生成</button>
+        </form>
+
+        <div id="loading">生成中...</div>
+        <div id="result">
+            <h3>生成された教材:</h3>
+            <p>ここにAIが生成した教材が表示されます。</p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('materialForm').addEventListener('submit', async (event) => {
+            event.preventDefault(); // フォームのデフォルト送信を防ぐ
+
+            const topic = document.getElementById('topic').value;
+            const level = document.getElementById('level').value;
+            const loadingDiv = document.getElementById('loading');
+            const resultDiv = document.getElementById('result');
+
+            loadingDiv.style.display = 'block'; // ローディング表示
+            resultDiv.innerHTML = '<h3>生成された教材:</h3><p>生成中...</p>'; // 結果エリアをクリア
+
+            try {
+                const response = await fetch('/generate-material', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ topic, level })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    resultDiv.innerHTML = `<h3>生成された教材:</h3>${data.material}`;
+                } else {
+                    resultDiv.innerHTML = `<h3>エラー:</h3><p>${data.error || '教材の生成に失敗しました。'}</p>`;
+                }
+            } catch (error) {
+                console.error('Fetch error:', error);
+                resultDiv.innerHTML = `<h3>エラー:</h3><p>ネットワークエラーまたはサーバーの問題が発生しました: ${error.message}</p>`;
+            } finally {
+                loadingDiv.style.display = 'none'; // ローディング非表示
+            }
+        });
+    </script>
+</body>
+</html>
