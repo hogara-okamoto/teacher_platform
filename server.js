@@ -79,9 +79,10 @@ app.post('/generate-material', async (req, res) => {
     res.json({ material: generatedContent });
 });
 
-// Vercel doesn't run app.listen(). Instead, export the handler:
+// --- 簡単なエクスプレスサーバーの場合はこちら ---
 // app.listen(port, () => {
 //     console.log(`Server listening at http://localhost:${port}`);
 // });
 
-module.exports = app;
+// Vercel doesn't run app.listen(). Instead, export the handler:
+export default app;
